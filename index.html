@@ -3,728 +3,1340 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Ones Generator — UGC AI Studio</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<title>The Ones Generator — Creative AI Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg:#07070d;--surface:#111119;--s2:#181825;--s3:#1f1f2e;
-  --border:#252535;--b2:#32324a;
-  --red:#ff3d5a;--purple:#9b5de5;--cyan:#00d4aa;--gold:#ffd166;
-  --text:#eeeef8;--muted:#6868a0;--muted2:#9090c0;
-  --r:rgba(255,61,90,0.15);--p:rgba(155,93,229,0.12);
+  --bg: #080808;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: #222222;
+  --accent: #ff3c3c;
+  --accent2: #ff8c00;
+  --gold: #f5c842;
+  --cyan: #00e5ff;
+  --green: #00ff88;
+  --text: #f0f0f0;
+  --muted: #666;
+  --muted2: #444;
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
 
-/* NOISE OVERLAY */
-body::after{content:'';position:fixed;inset:0;z-index:0;opacity:0.025;
-  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  pointer-events:none}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* MESH BG */
-body::before{content:'';position:fixed;inset:0;z-index:0;
-  background:
-    radial-gradient(ellipse 70% 50% at 15% 0%,rgba(155,93,229,.1) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 40% at 85% 90%,rgba(255,61,90,.08) 0%,transparent 60%),
-    radial-gradient(ellipse 40% 30% at 50% 40%,rgba(0,212,170,.04) 0%,transparent 50%);
-  pointer-events:none}
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
 
-/* ===== NAV ===== */
-nav{position:fixed;top:0;left:0;right:0;z-index:200;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:14px 28px;
-  background:rgba(7,7,13,.9);backdrop-filter:blur(24px);
-  border-bottom:1px solid var(--border)}
-.logo{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;
-  background:linear-gradient(120deg,#ff3d5a,#9b5de5,#00d4aa);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-.5px}
-.nav-right{display:flex;align-items:center;gap:10px}
-.api-status{display:flex;align-items:center;gap:6px;padding:6px 14px;
-  background:var(--surface);border:1px solid var(--border);border-radius:100px;font-size:12px;color:var(--muted)}
-.dot{width:6px;height:6px;border-radius:50%;background:#666;transition:background .3s}
-.dot.on{background:var(--cyan);box-shadow:0 0 8px var(--cyan)}
-.dot.warn{background:var(--gold)}
+/* Noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.4;
+}
+
+/* ===== NAVBAR ===== */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,8,8,0.9);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+}
+
+.nav-logo {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.nav-logo span {
+  color: var(--muted);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  -webkit-text-fill-color: var(--muted);
+  margin-left: 8px;
+  letter-spacing: 1px;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.api-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 5px 12px;
+  border-radius: 100px;
+}
+
+.api-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted2);
+  transition: all .3s;
+}
+
+.api-dot.on {
+  background: var(--green);
+  box-shadow: 0 0 8px var(--green);
+}
+
+.btn-setup {
+  background: var(--accent);
+  color: white;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.btn-setup:hover { opacity: .85; transform: translateY(-1px); }
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  padding: 60px 24px 40px;
+  text-align: center;
+  overflow: hidden;
+}
+
+.hero-glow {
+  position: absolute;
+  top: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 300px;
+  background: radial-gradient(ellipse, rgba(255,60,60,0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-tag {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--accent);
+  border: 1px solid rgba(255,60,60,0.3);
+  padding: 4px 12px;
+  border-radius: 100px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(42px, 8vw, 80px);
+  letter-spacing: 4px;
+  line-height: 1;
+  margin-bottom: 16px;
+}
+
+.hero h1 .line2 {
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+  color: var(--muted);
+  font-size: 15px;
+  max-width: 480px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+/* Style toggle */
+.style-toggle {
+  display: inline-flex;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+  margin-bottom: 40px;
+}
+
+.style-btn {
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.style-btn.active {
+  background: var(--accent);
+  color: white;
+}
+
+/* ===== TABS ===== */
+.tabs-wrap {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 14px 24px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-family: var(--font-body);
+  font-weight: 500;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tab:hover { color: var(--text); }
+
+.tab.active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.tab-icon {
+  font-size: 16px;
+}
+
+/* ===== MAIN LAYOUT ===== */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ===== CARD ===== */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,60,60,0.4), transparent);
+}
+
+.card-title {
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+
+.card-sub {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  font-family: var(--font-mono);
+}
+
+/* ===== FORM ELEMENTS ===== */
+label {
+  display: block;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+input[type=text], textarea, select {
+  width: 100%;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  color: var(--text);
+  font-size: 14px;
+  font-family: var(--font-body);
+  outline: none;
+  transition: border-color .2s;
+  resize: none;
+}
+
+input[type=text]:focus, textarea:focus, select:focus {
+  border-color: rgba(255,60,60,0.5);
+}
+
+select option { background: var(--surface2); }
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-group { margin-bottom: 16px; }
+
+/* Chip selector */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.chip {
+  padding: 6px 14px;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all .2s;
+  background: transparent;
+}
+
+.chip:hover { border-color: var(--accent); color: var(--text); }
+.chip.on { border-color: var(--accent); color: var(--accent); background: rgba(255,60,60,0.08); }
+
+/* ===== GENERATE BUTTON ===== */
+.btn-generate {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 15px;
+  font-family: var(--font-display);
+  letter-spacing: 2px;
+  cursor: pointer;
+  transition: all .3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-generate::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.btn-generate:hover::before { opacity: 1; }
+.btn-generate:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,60,60,0.3); }
+.btn-generate:active { transform: translateY(0); }
+.btn-generate:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+/* ===== OUTPUT AREA ===== */
+.output-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+@media (max-width: 768px) {
+  .output-grid { grid-template-columns: 1fr; }
+  .form-row { grid-template-columns: 1fr; }
+}
+
+.output-block {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.output-block.full { grid-column: 1 / -1; }
+
+.output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.output-label {
+  font-size: 9px;
+  font-family: var(--font-mono);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.copy-btn {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.copy-btn:hover { color: var(--text); border-color: var(--muted); }
+
+.output-content {
+  padding: 16px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  min-height: 80px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.output-content.placeholder {
+  color: var(--muted2);
+  font-style: italic;
+  font-size: 12px;
+}
+
+/* ===== LOADING ===== */
+.loader {
+  display: none;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  font-size: 12px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+.loader.on { display: flex; }
+
+.loader-bar {
+  flex: 1;
+  height: 2px;
+  background: var(--border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.loader-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  width: 40%;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 2px;
+  animation: slide 1.2s ease-in-out infinite;
+}
+
+@keyframes slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(350%); }
+}
+
+/* ===== IDEA CARDS (Panel 1) ===== */
+.idea-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.idea-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: all .3s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.idea-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,60,60,0.05), transparent);
+  opacity: 0;
+  transition: opacity .2s;
+}
+
+.idea-card:hover { border-color: rgba(255,60,60,0.4); transform: translateY(-2px); }
+.idea-card:hover::after { opacity: 1; }
+
+.idea-num {
+  font-family: var(--font-display);
+  font-size: 36px;
+  color: var(--muted2);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.idea-format {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.idea-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.idea-angle {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.idea-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.idea-tag {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  padding: 2px 8px;
+  border-radius: 100px;
+  background: rgba(255,255,255,0.05);
+  color: var(--muted);
+}
+
+.use-idea-btn {
+  display: none;
+  width: 100%;
+  margin-top: 12px;
+  padding: 8px;
+  background: rgba(255,60,60,0.1);
+  border: 1px solid rgba(255,60,60,0.3);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.idea-card:hover .use-idea-btn { display: block; }
+.use-idea-btn:hover { background: rgba(255,60,60,0.2); }
+
+/* ===== WORKFLOW STEPS ===== */
+.workflow-steps {
+  margin-top: 24px;
+}
+
+.workflow-phase {
+  margin-bottom: 24px;
+}
+
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.phase-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: white;
+  font-family: var(--font-display);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.phase-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+
+.phase-steps {
+  padding-left: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.step-item {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.step-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+  margin-top: 1px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: all .2s;
+}
+
+.step-check.done {
+  background: var(--green);
+  border-color: var(--green);
+  color: black;
+}
+
+.step-text { flex: 1; }
+
+.step-time {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+/* ===== STORYBOARD ===== */
+.sb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.sb-card {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all .2s;
+}
+
+.sb-card:hover { border-color: rgba(255,60,60,0.3); transform: translateY(-2px); }
+
+.sb-visual {
+  height: 120px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+}
+
+.sb-num-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: var(--accent);
+  color: white;
+  font-family: var(--font-display);
+  font-size: 14px;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sb-timing {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  background: rgba(0,0,0,0.5);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.sb-body { padding: 14px; }
+
+.sb-scene-title {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.sb-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.sb-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sb-meta-item {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+}
+
+.sb-meta-item span {
+  color: var(--cyan);
+}
 
 /* ===== SETUP MODAL ===== */
-#setupOverlay{position:fixed;inset:0;z-index:500;
-  background:rgba(7,7,13,.97);backdrop-filter:blur(10px);
-  display:flex;align-items:center;justify-content:center;padding:20px}
-.setup-box{background:var(--surface);border:1px solid var(--border);
-  border-radius:24px;padding:40px;max-width:540px;width:100%;
-  animation:popIn .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
-.setup-step{display:none}.setup-step.active{display:block}
-.step-badge{display:inline-flex;align-items:center;gap:8px;
-  background:rgba(255,61,90,.1);border:1px solid rgba(255,61,90,.25);
-  padding:4px 14px;border-radius:100px;font-size:12px;color:var(--red);margin-bottom:20px}
-.setup-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;margin-bottom:8px;line-height:1.2}
-.setup-sub{color:var(--muted);font-size:14px;line-height:1.7;margin-bottom:24px}
-.api-input-wrap{position:relative;margin-bottom:12px}
-.api-input-wrap input{width:100%;background:var(--s2);border:1px solid var(--border);
-  color:var(--text);padding:14px 48px 14px 16px;border-radius:12px;
-  font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
-.api-input-wrap input:focus{border-color:var(--red)}
-.eye-btn{position:absolute;right:14px;top:50%;transform:translateY(-50%);
-  background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px}
-.api-hint{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:20px}
-.api-hint a{color:var(--cyan);text-decoration:none}
-.api-hint a:hover{text-decoration:underline}
-.setup-btns{display:flex;gap:10px;flex-wrap:wrap}
-.btn-skip{background:var(--s2);color:var(--muted);border:1px solid var(--border);
-  padding:12px 24px;border-radius:10px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
-.btn-skip:hover{color:var(--text);border-color:var(--b2)}
-.feature-list{display:flex;flex-direction:column;gap:8px;margin:16px 0}
-.feat-row{display:flex;align-items:center;gap:10px;font-size:14px;
-  padding:10px 14px;background:var(--s2);border-radius:10px;border:1px solid var(--border)}
-.feat-row .tick{color:var(--cyan);font-size:16px}
-.feat-row .needs{color:var(--gold);font-size:11px;
-  background:rgba(255,209,102,.1);border:1px solid rgba(255,209,102,.2);
-  padding:2px 8px;border-radius:100px;margin-left:auto}
-.feat-row .free{color:var(--cyan);font-size:11px;
-  background:rgba(0,212,170,.1);border:1px solid rgba(0,212,170,.2);
-  padding:2px 8px;border-radius:100px;margin-left:auto}
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
 
-/* ===== MAIN ===== */
-.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:88px 20px 80px}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 32px;
+  max-width: 440px;
+  width: 100%;
+  position: relative;
+}
 
-/* TABS */
-.tab-bar{display:flex;gap:4px;background:var(--surface);
-  border:1px solid var(--border);border-radius:16px;padding:6px;margin-bottom:28px;flex-wrap:wrap}
-.tb{flex:1;min-width:100px;padding:10px 14px;border-radius:10px;border:none;
-  background:transparent;color:var(--muted);font-size:13px;font-weight:500;
-  cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif;
-  display:flex;align-items:center;justify-content:center;gap:7px}
-.tb.on{background:linear-gradient(135deg,var(--red),var(--purple));
-  color:#fff;box-shadow:0 4px 20px rgba(255,61,90,.25)}
-.tb:hover:not(.on){color:var(--text);background:var(--s2)}
+.modal::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  border-radius: 20px 20px 0 0;
+}
 
-/* PANEL */
-.panel{display:none;animation:fadeUp .3s ease}
-.panel.on{display:block}
-@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.modal-title {
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: 2px;
+  margin-bottom: 6px;
+}
 
-/* CARD */
-.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:24px}
-.card-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;margin-bottom:4px}
-.card-sub{color:var(--muted);font-size:13px;margin-bottom:22px;line-height:1.6}
+.modal-sub {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  margin-bottom: 24px;
+}
 
-/* GRID */
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-@media(max-width:700px){.g2,.g3{grid-template-columns:1fr}}
+.modal-field {
+  margin-bottom: 16px;
+}
 
-/* FORM */
-label{display:block;font-size:11px;font-weight:600;color:var(--muted);
-  margin-bottom:7px;text-transform:uppercase;letter-spacing:.6px}
-input,textarea,select{width:100%;background:var(--s2);border:1px solid var(--border);
-  color:var(--text);padding:11px 14px;border-radius:10px;
-  font-size:14px;font-family:'DM Sans',sans-serif;outline:none;transition:border-color .2s}
-input:focus,textarea:focus,select:focus{border-color:var(--red)}
-select option{background:var(--s2)}
-textarea{resize:vertical;min-height:90px;line-height:1.6}
-.field{margin-bottom:16px}
+.modal-field label {
+  color: var(--muted);
+  margin-bottom: 8px;
+}
 
-/* CHIPS */
-.chips{display:flex;flex-wrap:wrap;gap:7px}
-.chip{padding:7px 15px;border-radius:100px;font-size:12px;font-weight:500;
-  border:1px solid var(--border);color:var(--muted);cursor:pointer;
-  transition:all .2s;background:var(--s2)}
-.chip.on{background:var(--red);border-color:var(--red);color:#fff}
-.chip:hover:not(.on){border-color:var(--red);color:var(--red)}
+.key-input-wrap {
+  display: flex;
+  gap: 8px;
+}
 
-/* UPLOAD */
-.drop-zone{border:2px dashed var(--border);border-radius:14px;
-  padding:20px;text-align:center;
-  transition:all .3s;background:var(--s2)}
-.drop-zone.over{border-color:var(--red);background:rgba(255,61,90,.05)}
-.drop-icon{font-size:32px;margin-bottom:8px}
-.drop-zone strong{display:block;font-size:14px;margin-bottom:4px}
-.drop-zone span{font-size:12px;color:var(--muted)}
-.preview-img{max-height:150px;border-radius:10px;margin-top:12px;display:none;border:2px solid var(--cyan);max-width:100%}
-.hidden-file{display:none}
-.upload-tap-btn{display:inline-flex;align-items:center;gap:8px;margin-top:12px;
-  background:linear-gradient(135deg,var(--red),var(--purple));color:#fff;
-  border:none;padding:12px 26px;border-radius:12px;font-size:14px;font-weight:600;
-  cursor:pointer;font-family:'DM Sans',sans-serif;width:100%;justify-content:center;
-  -webkit-tap-highlight-color:transparent;touch-action:manipulation}
-.upload-tap-btn:active{opacity:.85}
+.key-input-wrap input {
+  flex: 1;
+}
 
-/* BUTTONS */
-.btn{padding:12px 26px;border-radius:12px;font-size:14px;font-weight:600;
-  cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .3s}
-.btn-pr{background:linear-gradient(135deg,var(--red),var(--purple));color:#fff;
-  box-shadow:0 0 24px rgba(255,61,90,.25)}
-.btn-pr:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(255,61,90,.4)}
-.btn-pr:disabled{opacity:.5;transform:none;cursor:not-allowed}
-.btn-sc{background:var(--s2);color:var(--text);border:1px solid var(--border)}
-.btn-sc:hover{border-color:var(--red);color:var(--red)}
-.btn-full{width:100%}
+.eye-btn {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0 14px;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  transition: all .2s;
+}
 
-/* LOADING */
-.ld{display:none;align-items:center;gap:10px;color:var(--muted);font-size:13px;margin-top:12px}
-.ld.on{display:flex}
-.spin{width:18px;height:18px;border:2px solid var(--border);
-  border-top-color:var(--red);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
-@keyframes spin{to{transform:rotate(360deg)}}
+.eye-btn:hover { color: var(--text); }
 
-/* PROGRESS */
-.prog{height:3px;background:var(--border);border-radius:2px;
-  margin:10px 0;display:none;overflow:hidden}
-.prog.on{display:block}
-.prog-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--purple));
-  width:0%;transition:width .25s;border-radius:2px}
+.hint-text {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  margin-top: 6px;
+  line-height: 1.5;
+}
 
-/* IMAGE GRID */
-.img-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px}
-.img-cell{aspect-ratio:1;border-radius:12px;overflow:hidden;position:relative;
-  border:1px solid var(--border);background:var(--s2);cursor:pointer;transition:transform .2s}
-.img-cell:hover{transform:scale(1.02)}
-.img-cell img{width:100%;height:100%;object-fit:cover;display:block}
-.img-placeholder{width:100%;height:100%;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;gap:6px;color:var(--muted);font-size:12px}
-.img-cell .dl-btn{position:absolute;bottom:8px;right:8px;
-  background:rgba(0,0,0,.75);color:#fff;border:none;
-  padding:5px 12px;border-radius:8px;font-size:11px;cursor:pointer;
-  opacity:0;transition:opacity .2s;font-family:'DM Sans',sans-serif}
-.img-cell:hover .dl-btn{opacity:1}
+.hint-text a { color: var(--accent); text-decoration: none; }
 
-/* OUTPUT BOX */
-.out{background:var(--s2);border:1px solid var(--border);border-radius:12px;
-  padding:16px;min-height:100px;font-size:14px;line-height:1.8;
-  color:var(--text);white-space:pre-wrap;position:relative;margin-bottom:12px}
-.out-label{position:absolute;top:-10px;left:14px;
-  background:var(--red);color:#fff;
-  font-size:10px;font-weight:700;padding:2px 10px;
-  border-radius:100px;text-transform:uppercase;letter-spacing:.5px}
-.copy-btn{position:absolute;top:10px;right:10px;
-  background:var(--surface);border:1px solid var(--border);
-  color:var(--muted);padding:5px 12px;border-radius:8px;
-  font-size:11px;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
-.copy-btn:hover{color:var(--text);border-color:var(--cyan)}
+.modal-save {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  border: none;
+  border-radius: 12px;
+  color: white;
+  font-family: var(--font-display);
+  font-size: 16px;
+  letter-spacing: 2px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all .2s;
+}
 
-/* STORYBOARD */
-.sb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:18px}
-.sc-card{background:var(--s2);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-.sc-vis{height:120px;display:flex;align-items:center;justify-content:center;
-  font-size:36px;position:relative;border-bottom:1px solid var(--border);
-  background:linear-gradient(135deg,var(--surface),var(--s2))}
-.sc-num{position:absolute;top:8px;left:8px;
-  background:var(--red);color:#fff;
-  font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px}
-.sc-body{padding:12px}
-.sc-title{font-weight:600;font-size:13px;margin-bottom:3px}
-.sc-desc{color:var(--muted);font-size:12px;line-height:1.5}
-.sc-tag{display:inline-block;margin-top:6px;
-  background:rgba(0,212,170,.08);color:var(--cyan);
-  border:1px solid rgba(0,212,170,.2);
-  padding:2px 8px;border-radius:100px;font-size:10px}
-.sc-cam{font-size:11px;color:var(--muted);margin-top:4px}
+.modal-save:hover { opacity: .9; transform: translateY(-1px); }
 
-/* VIDEO */
-.vid-prev{aspect-ratio:9/16;max-height:400px;background:var(--s2);
-  border:1px solid var(--border);border-radius:14px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:10px;color:var(--muted);font-size:13px;overflow:hidden}
-.vid-prev video{width:100%;height:100%;object-fit:cover;border-radius:14px}
-.vid-opts{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
-.v-opt{background:var(--s2);border:1px solid var(--border);border-radius:12px;
-  padding:14px 10px;text-align:center;cursor:pointer;transition:all .2s}
-.v-opt:hover,.v-opt.on{border-color:var(--red);background:rgba(255,61,90,.05)}
-.v-opt-icon{font-size:22px;margin-bottom:4px}
-.v-opt-name{font-size:12px;font-weight:600}
-.v-opt-sub{font-size:10px;color:var(--muted);margin-top:2px}
+.modal-skip {
+  width: 100%;
+  padding: 10px;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  transition: color .2s;
+}
 
-/* TONE */
-.tone-g{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.tone{padding:10px;border-radius:10px;text-align:center;
-  border:1px solid var(--border);cursor:pointer;transition:all .2s;
-  font-size:12px;background:var(--s2);color:var(--muted)}
-.tone:hover,.tone.on{border-color:var(--purple);background:rgba(155,93,229,.1);color:var(--text)}
-.tone em{font-style:normal;font-size:18px;display:block;margin-bottom:4px}
+.modal-skip:hover { color: var(--text); }
 
-/* PLATFORM */
-.plat-row{display:flex;gap:7px;flex-wrap:wrap}
-.plat{padding:7px 14px;border-radius:8px;border:1px solid var(--border);
-  font-size:12px;cursor:pointer;transition:all .2s;
-  background:var(--s2);color:var(--muted);font-family:'DM Sans',sans-serif}
-.plat.on{background:var(--cyan);border-color:var(--cyan);color:#000;font-weight:600}
+/* ===== TOAST ===== */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 10px 20px;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  z-index: 9999;
+  transition: transform .3s cubic-bezier(.34,1.56,.64,1);
+  white-space: nowrap;
+}
 
-/* TOAST */
-#toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);
-  background:var(--surface);border:1px solid var(--b2);
-  color:var(--text);padding:11px 22px;border-radius:100px;
-  font-size:13px;z-index:999;opacity:0;transition:all .3s;pointer-events:none;
-  box-shadow:0 8px 32px rgba(0,0,0,.4)}
-#toast.on{opacity:1;transform:translateX(-50%) translateY(-6px)}
+.toast.show { transform: translateX(-50%) translateY(0); }
 
-/* DIVIDER */
-.div{height:1px;background:var(--border);margin:18px 0}
+/* ===== DIVIDER ===== */
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 24px 0;
+}
 
-/* ROW */
-.row{display:flex;gap:14px;flex-wrap:wrap}
-.row>*{flex:1;min-width:140px}
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-/* SECTION HEAD */
-.sec-badge{display:inline-flex;align-items:center;gap:7px;
-  background:rgba(255,61,90,.08);border:1px solid rgba(255,61,90,.2);
-  padding:4px 14px;border-radius:100px;font-size:11px;color:var(--red);margin-bottom:14px}
-.sec-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;
-  margin-bottom:6px;letter-spacing:-.5px}
-.sec-sub{color:var(--muted);font-size:14px;margin-bottom:28px}
-
-/* API KEY BANNER */
-.api-banner{background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.2);
-  border-radius:12px;padding:14px 18px;margin-bottom:20px;
-  display:flex;align-items:center;gap:12px;font-size:13px;color:var(--gold)}
-.api-banner button{margin-left:auto;background:rgba(255,209,102,.15);
-  border:1px solid rgba(255,209,102,.3);color:var(--gold);
-  padding:5px 14px;border-radius:8px;font-size:12px;cursor:pointer;
-  font-family:'DM Sans',sans-serif;white-space:nowrap}
-
-/* ERROR */
-.err-box{background:rgba(255,61,90,.06);border:1px solid rgba(255,61,90,.2);
-  border-radius:10px;padding:12px 16px;font-size:13px;color:var(--red);
-  margin-top:10px;display:none}
-.err-box.on{display:block}
-
-/* SCROLLBAR */
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .hero h1 { font-size: 42px; }
+  .tab { padding: 12px 16px; font-size: 12px; }
+  nav { padding: 0 16px; }
+  .main { padding: 24px 16px 60px; }
+}
 </style>
 </head>
 <body>
 
-<!-- SETUP OVERLAY -->
-<div id="setupOverlay">
-  <div class="setup-box">
-    <!-- Step 1: Intro -->
-    <div class="setup-step active" id="step1">
-      <div class="step-badge">⚡ Setup Cepat (1 menit)</div>
-      <div class="setup-title">Selamat datang di<br><span style="background:linear-gradient(135deg,#ff3d5a,#9b5de5);-webkit-background-clip:text;-webkit-text-fill-color:transparent">The Ones Generator</span></div>
-      <div class="setup-sub">Platform AI gratis untuk membuat konten UGC affiliate. Berikut fitur yang tersedia:</div>
-      <div class="feature-list">
-        <div class="feat-row"><span class="tick">✅</span> Script & Narasi AI<span class="free">GRATIS ∞</span></div>
-        <div class="feat-row"><span class="tick">✅</span> Storyboard Otomatis<span class="free">GRATIS ∞</span></div>
-        <div class="feat-row"><span class="tick">🖼️</span> Image Generator (Stable Diffusion)<span class="needs">Butuh HuggingFace API</span></div>
-        <div class="feat-row"><span class="tick">🎥</span> Video Generator AI<span class="needs">Butuh HuggingFace API</span></div>
-      </div>
-      <div class="api-hint">HuggingFace API Key <strong>100% gratis</strong> — daftar di <a href="https://huggingface.co/join" target="_blank">huggingface.co/join</a> dan buat token di Settings → Access Tokens</div>
-      <div class="setup-btns">
-        <button class="btn btn-pr" onclick="goStep(2)">🔑 Setup API Key →</button>
-        <button class="btn-skip" onclick="skipSetup()">Lewati, pakai fitur dasar</button>
-      </div>
-    </div>
-
-    <!-- Step 2: HuggingFace -->
-    <div class="setup-step" id="step2">
-      <div class="step-badge">🔑 Step 1 / 2 · HuggingFace</div>
-      <div class="setup-title">Masukkan HuggingFace<br>API Key</div>
-      <div class="setup-sub">Untuk Image Generator & Video Generator. Key disimpan di browser kamu, tidak dikirim ke server kami.</div>
-      <div style="margin-bottom:16px">
-        <label style="font-size:12px;color:var(--cyan);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block">🚀 Groq API Key (Script & Storyboard)</label>
-        <div class="api-input-wrap" style="margin-bottom:6px">
-          <input type="password" id="groqInput" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx">
-          <button class="eye-btn" onclick="toggleVis('groqInput',this)">👁</button>
-        </div>
-        <div class="api-hint">
-          Gratis unlimited di <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a> → Create API Key
-        </div>
-      </div>
-      <div>
-        <label style="font-size:12px;color:var(--gold);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block">🖼️ HuggingFace API Key (Image & Video)</label>
-        <div class="api-input-wrap" style="margin-bottom:6px">
-          <input type="password" id="hfInput" placeholder="hf_xxxxxxxxxxxxxxxxxxxxxxxx">
-          <button class="eye-btn" onclick="toggleVis('hfInput',this)">👁</button>
-        </div>
-        <div class="api-hint">
-          Gratis di <a href="https://huggingface.co/settings/tokens" target="_blank">huggingface.co/settings/tokens</a> → New Token → Read
-        </div>
-      </div>
-      <div class="err-box" id="hfErr">Pastikan Groq key dimulai "gsk_" dan HF key dimulai "hf_"</div>
-      <div class="setup-btns">
-        <button class="btn btn-pr" onclick="saveHF()">Simpan & Lanjut →</button>
-        <button class="btn-skip" onclick="goStep(3)">Lewati</button>
-        <button class="btn-skip" onclick="goStep(1)">← Kembali</button>
-      </div>
-    </div>
-
-    <!-- Step 3: Done -->
-    <div class="setup-step" id="step3">
-      <div style="text-align:center;padding:10px 0">
-        <div style="font-size:64px;margin-bottom:16px">🚀</div>
-        <div class="setup-title" style="margin-bottom:8px">Siap dipakai!</div>
-        <div class="setup-sub" style="margin-bottom:28px" id="readyMsg">Semua fitur aktif. Mulai buat konten UGC kamu sekarang!</div>
-        <button class="btn btn-pr btn-full" onclick="closeSetup()">✨ Buka The Ones Studio</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- NAVBAR -->
 <nav>
-  <div class="logo">The Ones Generator</div>
+  <div class="nav-logo">THE ONES <span>CREATIVE STUDIO</span></div>
   <div class="nav-right">
-    <div class="api-status" id="apiStatus">
-      <div class="dot" id="hfDot"></div>
-      <span id="statusTxt">Belum setup</span>
+    <div class="api-status">
+      <div class="api-dot" id="apiDot"></div>
+      <span id="apiTxt">Setup API</span>
     </div>
-    <button class="btn btn-sc" style="padding:8px 16px;font-size:13px" onclick="openSetup()">⚙️ API Keys</button>
+    <button class="btn-setup" onclick="openModal()">⚙️ API Key</button>
   </div>
 </nav>
 
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-tag">AI CREATIVE STUDIO · POWERED BY GROQ</div>
+  <h1>BUAT KONTEN<br><span class="line2">YANG CONVERT</span></h1>
+  <p>Tools AI setara content creator & storyteller profesional 10 tahun pengalaman. Gratis, unlimited.</p>
+
+  <div class="style-toggle">
+    <button class="style-btn active" onclick="setStyle('formal',this)">🎩 Formal-Conversational</button>
+    <button class="style-btn" onclick="setStyle('gaul',this)">🔥 Santai/Gaul</button>
+    <button class="style-btn" onclick="setStyle('premium',this)">💎 Premium Brand</button>
+    <button class="style-btn" onclick="setStyle('storytelling',this)">📖 Storytelling</button>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-wrap">
+  <button class="tab active" onclick="showTab('ide',this)">
+    <span class="tab-icon">💡</span> Ide Generator
+  </button>
+  <button class="tab" onclick="showTab('script',this)">
+    <span class="tab-icon">✍️</span> Script Pro
+  </button>
+  <button class="tab" onclick="showTab('storyboard',this)">
+    <span class="tab-icon">🎬</span> Storyboard
+  </button>
+  <button class="tab" onclick="showTab('workflow',this)">
+    <span class="tab-icon">⚡</span> Workflow
+  </button>
+</div>
+
 <!-- MAIN -->
-<div class="wrap">
+<div class="main">
 
-  <!-- API BANNER -->
-  <div class="api-banner" id="apiBanner" style="display:none">
-    ⚠️ HuggingFace API Key belum diset. Image & Video generator tidak aktif.
-    <button onclick="openSetup()">Setup Sekarang</button>
-  </div>
+  <!-- ===== PANEL 1: IDE GENERATOR ===== -->
+  <div class="panel active" id="panel-ide">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+      <div class="card" style="grid-column:1/-1">
+        <div class="card-title">💡 IDE KONTEN GENERATOR</div>
+        <div class="card-sub">// dari niche & produk → 10+ ide konten viral siap eksekusi</div>
 
-  <!-- TABS -->
-  <div class="tab-bar">
-    <button class="tb on" onclick="switchTab('image',this)"><span>🖼️</span> Image</button>
-    <button class="tb" onclick="switchTab('script',this)"><span>✍️</span> Script</button>
-    <button class="tb" onclick="switchTab('storyboard',this)"><span>🎬</span> Storyboard</button>
-    <button class="tb" onclick="switchTab('video',this)"><span>🎥</span> Video</button>
-  </div>
-
-  <!-- ===== IMAGE PANEL ===== -->
-  <div id="panel-image" class="panel on">
-    <div class="g2">
-      <div>
-        <div class="card">
-          <div class="card-title">🖼️ Image Generator UGC</div>
-          <div class="card-sub">Upload foto produk + deskripsikan karakter, AI generate gambar UGC</div>
-
-          <div class="field">
-            <label>Upload Foto Produk (opsional)</label>
-            <input type="file" id="prodFileInput" class="hidden-file" accept="image/*" capture="environment" onchange="onFile(this,'prodPrev')">
-            <div class="drop-zone" id="prodDrop">
-              <div class="drop-icon">📦</div>
-              <strong>Foto Produk</strong>
-              <span>Opsional · JPG, PNG · Max 5MB</span>
-              <br>
-              <button type="button" class="upload-tap-btn" onclick="triggerFile('prodFileInput')">
-                📁 Pilih dari Galeri
-              </button>
-            </div>
-            <img id="prodPrev" class="preview-img" alt="">
-          </div>
-
-          <div class="field">
-            <label>Deskripsi Konten</label>
-            <textarea id="imgDesc" placeholder="Contoh: Wanita 25 tahun tersenyum sambil memegang serum wajah di kamar mandi yang bersih, aesthetic minimal, lighting natural..."></textarea>
-          </div>
-
-          <div class="field">
-            <label>Kategori Produk</label>
-            <div class="chips" id="catChips">
-              <div class="chip on" onclick="oneChip(this)">💄 Skincare</div>
-              <div class="chip" onclick="oneChip(this)">👗 Fashion</div>
-              <div class="chip" onclick="oneChip(this)">📱 Gadget</div>
-              <div class="chip" onclick="oneChip(this)">🍵 F&B</div>
-              <div class="chip" onclick="oneChip(this)">💊 Supplement</div>
-              <div class="chip" onclick="oneChip(this)">🏠 Home</div>
-              <div class="chip" onclick="oneChip(this)">🐾 Pets</div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Style Visual</label>
-            <div class="chips" id="styleChips">
-              <div class="chip on" onclick="oneChip(this)">📸 Lifestyle</div>
-              <div class="chip" onclick="oneChip(this)">🔥 Viral TikTok</div>
-              <div class="chip" onclick="oneChip(this)">🌿 Natural</div>
-              <div class="chip" onclick="oneChip(this)">💎 Luxury</div>
-              <div class="chip" onclick="oneChip(this)">😊 Casual</div>
-            </div>
-          </div>
-
-          <div class="field">
-            <label>Ukuran</label>
-            <select id="imgSize">
-              <option value="512x512">1:1 Square (Feed IG)</option>
-              <option value="512x768">9:16 Vertikal (Story/TikTok)</option>
-              <option value="768x512">16:9 Horizontal (YouTube Thumb)</option>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Niche / Kategori</label>
+            <select id="ideNiche">
+              <option>Skincare & Kecantikan</option>
+              <option>Fashion & Style</option>
+              <option>Fitness & Kesehatan</option>
+              <option>Food & Kuliner</option>
+              <option>Tech & Gadget</option>
+              <option>Rumah & Lifestyle</option>
+              <option>Parenting</option>
+              <option>Finance & Bisnis</option>
+              <option>Edukasi</option>
+              <option>Travel</option>
+              <option>Custom (tulis di bawah)</option>
             </select>
           </div>
-
-          <button class="btn btn-pr btn-full" id="genImgBtn" onclick="generateImages()">✨ Generate 4 Image UGC</button>
-          <div class="ld" id="imgLd"><div class="spin"></div><span id="imgLdTxt">Generating dengan Stable Diffusion XL...</span></div>
-          <div class="prog" id="imgProg"><div class="prog-fill" id="imgFill"></div></div>
-          <div class="err-box" id="imgErr"></div>
-        </div>
-      </div>
-
-      <div>
-        <div class="card">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-            <div class="card-title">Hasil Generate</div>
-            <button class="btn btn-sc" style="padding:7px 14px;font-size:12px" onclick="downloadAll()">⬇️ Download Semua</button>
-          </div>
-          <div class="img-grid" id="imgGrid">
-            <div class="img-cell"><div class="img-placeholder"><span style="font-size:28px">🖼️</span><span>Image 1</span></div></div>
-            <div class="img-cell"><div class="img-placeholder"><span style="font-size:28px">🖼️</span><span>Image 2</span></div></div>
-            <div class="img-cell"><div class="img-placeholder"><span style="font-size:28px">🖼️</span><span>Image 3</span></div></div>
-            <div class="img-cell"><div class="img-placeholder"><span style="font-size:28px">🖼️</span><span>Image 4</span></div></div>
-          </div>
-          <div style="margin-top:12px;font-size:12px;color:var(--muted);text-align:center">
-            Powered by Stable Diffusion XL · via HuggingFace
+          <div class="form-group">
+            <label>Nama Produk / Brand</label>
+            <input type="text" id="ideProduk" placeholder="Contoh: Serum Vit C, Sepatu Nike...">
           </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ===== SCRIPT PANEL ===== -->
-  <div id="panel-script" class="panel">
-    <div class="g2">
-      <div class="card">
-        <div class="card-title">✍️ Script & Narasi AI</div>
-        <div class="card-sub">Narasi setara copywriter profesional, gratis tanpa batas</div>
+        <div class="form-group">
+          <label>Target Audience</label>
+          <div class="chips" id="audienceChips">
+            <button class="chip on" onclick="toggleChip(this)">Gen Z (17-25)</button>
+            <button class="chip" onclick="toggleChip(this)">Millennial (26-35)</button>
+            <button class="chip" onclick="toggleChip(this)">Ibu Rumah Tangga</button>
+            <button class="chip" onclick="toggleChip(this)">Profesional</button>
+            <button class="chip" onclick="toggleChip(this)">Pelajar/Mahasiswa</button>
+            <button class="chip" onclick="toggleChip(this)">Semua Umur</button>
+          </div>
+        </div>
 
-        <div class="field">
-          <label>Nama Produk *</label>
-          <input type="text" id="prodName" placeholder="e.g. Serum Vitamin C Brightening 30ml">
-        </div>
-        <div class="field">
-          <label>Kategori</label>
-          <select id="scriptCat">
-            <option>💄 Skincare & Beauty</option><option>👗 Fashion & Lifestyle</option>
-            <option>📱 Teknologi & Gadget</option><option>🍵 Food & Beverage</option>
-            <option>💊 Health & Supplement</option><option>🏠 Home & Living</option>
-            <option>💪 Fitness & Sport</option><option>👶 Baby & Kids</option>
-            <option>🐾 Pets</option><option>📚 Pendidikan</option>
-          </select>
-        </div>
-        <div class="field">
+        <div class="form-group">
           <label>Platform Target</label>
-          <div class="plat-row">
-            <button class="plat on" onclick="onePlat(this)">📱 TikTok</button>
-            <button class="plat" onclick="onePlat(this)">📸 Reels</button>
-            <button class="plat" onclick="onePlat(this)">▶️ YouTube</button>
-            <button class="plat" onclick="onePlat(this)">🐦 Twitter/X</button>
-            <button class="plat" onclick="onePlat(this)">📝 Caption</button>
+          <div class="chips" id="platformChips">
+            <button class="chip on" onclick="toggleChip(this)">TikTok</button>
+            <button class="chip" onclick="toggleChip(this)">Reels</button>
+            <button class="chip" onclick="toggleChip(this)">YouTube Shorts</button>
+            <button class="chip" onclick="toggleChip(this)">Feed Instagram</button>
           </div>
         </div>
-        <div class="field">
-          <label>Tone & Gaya</label>
-          <div class="tone-g">
-            <div class="tone on" onclick="oneTone(this)"><em>🔥</em>Hype</div>
-            <div class="tone" onclick="oneTone(this)"><em>🤝</em>Relatable</div>
-            <div class="tone" onclick="oneTone(this)"><em>💎</em>Premium</div>
-            <div class="tone" onclick="oneTone(this)"><em>😂</em>Funny</div>
-            <div class="tone" onclick="oneTone(this)"><em>💡</em>Edukatif</div>
-            <div class="tone" onclick="oneTone(this)"><em>💕</em>Emosional</div>
+
+        <div class="form-group">
+          <label>Tren / Momen Saat Ini (opsional)</label>
+          <input type="text" id="ideTren" placeholder="Contoh: Lebaran, back to school, musim hujan...">
+        </div>
+
+        <button class="btn-generate" onclick="generateIde()" id="btnIde">
+          ⚡ GENERATE 10 IDE VIRAL
+        </button>
+        <div class="loader" id="ideLoader">
+          <div class="loader-bar"></div>
+          <span>AI sedang brainstorm...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="idea-grid" id="ideaGrid"></div>
+  </div>
+
+  <!-- ===== PANEL 2: SCRIPT PRO ===== -->
+  <div class="panel" id="panel-script">
+    <div style="display:grid;grid-template-columns:400px 1fr;gap:20px;align-items:start">
+
+      <div class="card">
+        <div class="card-title">✍️ SCRIPT WRITER PRO</div>
+        <div class="card-sub">// narasi setara copywriter 10 tahun</div>
+
+        <div class="form-group">
+          <label>Nama Produk *</label>
+          <input type="text" id="scriptProduk" placeholder="Nama produk yang mau dipromosikan">
+        </div>
+
+        <div class="form-group">
+          <label>Angle / Pendekatan</label>
+          <div class="chips">
+            <button class="chip on" onclick="toggleChip(this)" data-group="angle">Problem-Solution</button>
+            <button class="chip" onclick="toggleChip(this)" data-group="angle">Testimonial</button>
+            <button class="chip" onclick="toggleChip(this)" data-group="angle">Before-After</button>
+            <button class="chip" onclick="toggleChip(this)" data-group="angle">Tutorial</button>
+            <button class="chip" onclick="toggleChip(this)" data-group="angle">Storytelling</button>
+            <button class="chip" onclick="toggleChip(this)" data-group="angle">Shocking Fact</button>
           </div>
         </div>
-        <div class="field">
-          <label>Info Tambahan (opsional)</label>
-          <textarea id="extraInfo" placeholder="Keunggulan, promo, target audience, dll..." style="height:70px"></textarea>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Durasi Video</label>
+            <select id="scriptDurasi">
+              <option>15 detik</option>
+              <option>30 detik</option>
+              <option selected>60 detik</option>
+              <option>90 detik</option>
+              <option>3 menit</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Platform</label>
+            <select id="scriptPlat">
+              <option>TikTok</option>
+              <option>Reels</option>
+              <option>YouTube Shorts</option>
+              <option>YouTube</option>
+            </select>
+          </div>
         </div>
-        <button class="btn btn-pr btn-full" onclick="generateScript()">✨ Generate Script</button>
-        <div class="ld" id="scriptLd"><div class="spin"></div>AI sedang menulis narasi terbaik...</div>
+
+        <div class="form-group">
+          <label>USP / Keunggulan Produk</label>
+          <textarea id="scriptUSP" rows="3" placeholder="Apa yang bikin produk ini beda dari kompetitor?"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Target Pain Point</label>
+          <input type="text" id="scriptPain" placeholder="Masalah utama yang diselesaikan produk ini">
+        </div>
+
+        <button class="btn-generate" onclick="generateScript()" id="btnScript">
+          ✍️ TULIS SCRIPT LENGKAP
+        </button>
+        <div class="loader" id="scriptLoader">
+          <div class="loader-bar"></div>
+          <span>AI menulis script...</span>
+        </div>
       </div>
 
       <div>
-        <div class="out" style="margin-bottom:8px;min-height:70px">
-          <div class="out-label">HOOK (0-3 detik)</div>
-          <div id="hookOut" style="padding-top:4px;color:var(--red);font-style:italic;font-weight:500">Hook akan muncul di sini...</div>
+        <div class="output-block">
+          <div class="output-header">
+            <span class="output-label">🎣 HOOK (0-3 DETIK)</span>
+            <button class="copy-btn" onclick="copyOut('outHook')">Copy</button>
+          </div>
+          <div class="output-content placeholder" id="outHook">Hook yang grab attention akan muncul di sini...</div>
         </div>
-        <div class="out" style="min-height:180px">
-          <div class="out-label">SCRIPT LENGKAP</div>
-          <button class="copy-btn" onclick="cp('scriptOut')">📋 Copy</button>
-          <div id="scriptOut" style="padding-top:4px">Script akan muncul setelah generate...</div>
+
+        <div style="margin-top:12px" class="output-block">
+          <div class="output-header">
+            <span class="output-label">📜 SCRIPT LENGKAP</span>
+            <button class="copy-btn" onclick="copyOut('outScript')">Copy</button>
+          </div>
+          <div class="output-content placeholder" id="outScript">Script narasi dengan scene directions akan muncul di sini...</div>
         </div>
-        <div class="out" style="min-height:100px">
-          <div class="out-label">CTA & CAPTION</div>
-          <button class="copy-btn" onclick="cp('ctaOut')">📋 Copy</button>
-          <div id="ctaOut" style="padding-top:4px">CTA dan caption siap-pakai akan muncul di sini...</div>
+
+        <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="output-block">
+            <div class="output-header">
+              <span class="output-label">📣 CTA</span>
+              <button class="copy-btn" onclick="copyOut('outCTA')">Copy</button>
+            </div>
+            <div class="output-content placeholder" id="outCTA">CTA muncul di sini...</div>
+          </div>
+          <div class="output-block">
+            <div class="output-header">
+              <span class="output-label"># HASHTAG</span>
+              <button class="copy-btn" onclick="copyOut('outTag')">Copy</button>
+            </div>
+            <div class="output-content placeholder" id="outTag">Hashtag muncul di sini...</div>
+          </div>
         </div>
-        <div class="out" style="min-height:80px">
-          <div class="out-label">HASHTAGS</div>
-          <button class="copy-btn" onclick="cp('tagOut')">📋 Copy</button>
-          <div id="tagOut" style="padding-top:4px;color:var(--cyan)">Hashtags akan muncul di sini...</div>
+
+        <div style="margin-top:12px" class="output-block">
+          <div class="output-header">
+            <span class="output-label">📱 CAPTION SIAP PAKAI</span>
+            <button class="copy-btn" onclick="copyOut('outCaption')">Copy</button>
+          </div>
+          <div class="output-content placeholder" id="outCaption">Caption lengkap siap posting muncul di sini...</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ===== STORYBOARD PANEL ===== -->
-  <div id="panel-storyboard" class="panel">
+  <!-- ===== PANEL 3: STORYBOARD ===== -->
+  <div class="panel" id="panel-storyboard">
     <div class="card">
-      <div class="card-title">🎬 Storyboard & Workflow Visual</div>
-      <div class="card-sub">Generate workflow lengkap per scene dengan camera angle, timing, dan deskripsi shot</div>
+      <div class="card-title">🎬 STORYBOARD SINEMATIK</div>
+      <div class="card-sub">// shot list + arahan kamera setara sutradara profesional</div>
 
-      <div class="row" style="margin-bottom:16px">
-        <div>
+      <div class="form-row">
+        <div class="form-group">
           <label>Judul / Konsep Konten *</label>
-          <input type="text" id="sbTitle" placeholder="e.g. Honest Review Serum Before After">
+          <input type="text" id="sbJudul" placeholder="Contoh: Review jujur serum anti aging brand X">
         </div>
-        <div>
-          <label>Durasi Target</label>
-          <select id="sbDur">
-            <option>15 detik</option>
-            <option>30 detik</option>
-            <option selected>60 detik</option>
-            <option>3 menit</option>
-          </select>
-        </div>
-        <div>
-          <label>Platform</label>
-          <select id="sbPlat">
-            <option>TikTok (9:16)</option>
-            <option>Instagram Reels (9:16)</option>
-            <option>YouTube Shorts (9:16)</option>
-            <option>YouTube (16:9)</option>
-          </select>
-        </div>
-        <div>
-          <label>Tipe Konten</label>
-          <select id="sbType">
-            <option>Review / Testimoni</option>
-            <option>Unboxing</option>
-            <option>Tutorial / How-to</option>
-            <option>Before & After</option>
-            <option>Day in my life</option>
-            <option>Comparison</option>
+        <div class="form-group">
+          <label>Durasi Total</label>
+          <select id="sbDurasi">
+            <option>15 detik (3 scene)</option>
+            <option>30 detik (4 scene)</option>
+            <option selected>60 detik (6 scene)</option>
+            <option>90 detik (8 scene)</option>
           </select>
         </div>
       </div>
 
-      <button class="btn btn-pr" onclick="generateStoryboard()">🎬 Generate Storyboard</button>
-      <div class="ld" id="sbLd" style="margin-top:12px"><div class="spin"></div>AI sedang merancang storyboard...</div>
-      <div class="err-box" id="sbErr"></div>
-
-      <div class="sb-grid" id="sbGrid">
-        <div class="sc-card">
-          <div class="sc-vis">🎬<span class="sc-num">DEMO</span></div>
-          <div class="sc-body">
-            <div class="sc-title">Isi judul konten dulu</div>
-            <div class="sc-desc">Lalu klik Generate Storyboard untuk membuat workflow per scene</div>
-            <span class="sc-tag">⏱ 0s</span>
-          </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Mood / Tone Visual</label>
+          <select id="sbMood">
+            <option>Energetic & Dynamic</option>
+            <option>Soft & Aesthetic</option>
+            <option>Cinematic & Dark</option>
+            <option>Bright & Cheerful</option>
+            <option>Minimal & Clean</option>
+            <option>Authentic & Raw</option>
+          </select>
         </div>
+        <div class="form-group">
+          <label>Lokasi Utama</label>
+          <input type="text" id="sbLokasi" placeholder="Contoh: Kamar mandi, dapur, outdoor cafe">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Deskripsi Tambahan (opsional)</label>
+        <textarea id="sbExtra" rows="2" placeholder="Props, wardrobe, mood tertentu yang ingin dicapai..."></textarea>
+      </div>
+
+      <button class="btn-generate" onclick="generateStoryboard()" id="btnSB">
+        🎬 GENERATE STORYBOARD
+      </button>
+      <div class="loader" id="sbLoader">
+        <div class="loader-bar"></div>
+        <span>AI merancang shot list...</span>
       </div>
     </div>
+
+    <div class="sb-grid" id="sbGrid"></div>
   </div>
 
-  <!-- ===== VIDEO PANEL ===== -->
-  <div id="panel-video" class="panel">
-    <div class="g2">
-      <div class="card">
-        <div class="card-title">🎥 Video Generator AI</div>
-        <div class="card-sub">Generate video UGC dengan AI. Butuh HuggingFace API Key.</div>
+  <!-- ===== PANEL 4: WORKFLOW ===== -->
+  <div class="panel" id="panel-workflow">
+    <div class="card">
+      <div class="card-title">⚡ CONTENT WORKFLOW PLANNER</div>
+      <div class="card-sub">// strategi konten end-to-end dari ide sampai posting</div>
 
-        <div class="field">
-          <label>Engine AI</label>
-          <div class="vid-opts">
-            <div class="v-opt on" onclick="oneVidOpt(this)" data-model="damo-vilab/text-to-video-ms-1.7b">
-              <div class="v-opt-icon">🎬</div>
-              <div class="v-opt-name">Text2Video</div>
-              <div class="v-opt-sub">ModelScope</div>
-            </div>
-            <div class="v-opt" onclick="oneVidOpt(this)" data-model="cerspense/zeroscope_v2_576w">
-              <div class="v-opt-icon">🌊</div>
-              <div class="v-opt-name">ZeroScope</div>
-              <div class="v-opt-sub">Cinematic</div>
-            </div>
-            <div class="v-opt" onclick="oneVidOpt(this)" data-model="ali-vilab/i2vgen-xl">
-              <div class="v-opt-icon">🖼️→🎥</div>
-              <div class="v-opt-name">I2V-Gen</div>
-              <div class="v-opt-sub">Image to Video</div>
-            </div>
-          </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Jenis Kreator</label>
+          <select id="wfTipe">
+            <option>UGC Affiliate Creator</option>
+            <option>Brand Content Creator</option>
+            <option>Personal Branding</option>
+            <option>UMKM Owner</option>
+            <option>Agency / Tim Konten</option>
+          </select>
         </div>
-
-        <div class="field">
-          <label>Prompt Video (English lebih akurat)</label>
-          <textarea id="vidPrompt" placeholder="e.g. Beautiful woman applying skincare serum, close up shot, natural lighting, aesthetic bathroom, 4K quality..."></textarea>
-        </div>
-
-        <div class="row" style="margin-bottom:16px">
-          <div>
-            <label>Negative Prompt</label>
-            <input type="text" id="negPrompt" placeholder="blur, low quality, watermark..." value="blurry, low quality, distorted, watermark, text, ugly">
-          </div>
-        </div>
-
-        <button class="btn btn-pr btn-full" id="genVidBtn" onclick="generateVideo()">🎥 Generate Video</button>
-        <div class="ld" id="vidLd"><div class="spin"></div><span id="vidLdTxt">AI sedang render video (30-120 detik)...</span></div>
-        <div class="prog" id="vidProg"><div class="prog-fill" id="vidFill"></div></div>
-        <div class="err-box" id="vidErr"></div>
-
-        <div class="div"></div>
-        <div style="background:rgba(255,209,102,.06);border:1px solid rgba(255,209,102,.15);border-radius:10px;padding:12px 14px;font-size:12px;color:var(--muted);line-height:1.7">
-          💡 <strong style="color:var(--gold)">Tips:</strong> Model gratis menghasilkan video 2-4 detik. Untuk video lebih panjang seperti Veo 3/Hailuo, dibutuhkan API berbayar. Alternatif gratis terbaik: <strong style="color:var(--text)">Kling AI free tier</strong> (10 kredit/hari) di <a href="https://klingai.com" target="_blank" style="color:var(--cyan)">klingai.com</a>
+        <div class="form-group">
+          <label>Target Posting Per Minggu</label>
+          <select id="wfFreq">
+            <option>1-2 konten/minggu</option>
+            <option>3-5 konten/minggu</option>
+            <option selected>7 konten/minggu (1/hari)</option>
+            <option>14+ konten/minggu</option>
+          </select>
         </div>
       </div>
 
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-          <div class="card-title">Preview</div>
-          <button class="btn btn-sc" style="padding:7px 14px;font-size:12px" id="vidDlBtn" onclick="downloadVideo()" disabled>⬇️ Download</button>
+      <div class="form-group">
+        <label>Goal Utama</label>
+        <div class="chips">
+          <button class="chip on" onclick="toggleChip(this)">Viral & Reach</button>
+          <button class="chip" onclick="toggleChip(this)">Konversi Penjualan</button>
+          <button class="chip" onclick="toggleChip(this)">Brand Awareness</button>
+          <button class="chip" onclick="toggleChip(this)">Followers Growth</button>
+          <button class="chip" onclick="toggleChip(this)">Engagement</button>
         </div>
-        <div class="vid-prev" id="vidPrev">
-          <div style="font-size:48px">🎥</div>
-          <div>Video akan muncul di sini</div>
-          <div style="font-size:11px;color:var(--muted)">Powered by HuggingFace</div>
+      </div>
+
+      <div class="form-group">
+        <label>Platform Fokus</label>
+        <div class="chips">
+          <button class="chip on" onclick="toggleChip(this)">TikTok</button>
+          <button class="chip" onclick="toggleChip(this)">Instagram</button>
+          <button class="chip" onclick="toggleChip(this)">YouTube</button>
+          <button class="chip" onclick="toggleChip(this)">Multi-platform</button>
         </div>
-        <div class="div"></div>
-        <div style="font-size:12px;color:var(--muted);line-height:1.8">
-          <strong style="color:var(--text)">Alternatif gratis untuk video panjang:</strong><br>
-          🎬 <a href="https://klingai.com" target="_blank" style="color:var(--cyan)">Kling AI</a> — 10 video/hari gratis<br>
-          🌊 <a href="https://hailuoai.com" target="_blank" style="color:var(--cyan)">Hailuo AI</a> — Free trial tersedia<br>
-          ⚡ <a href="https://app.runwayml.com" target="_blank" style="color:var(--cyan)">Runway ML</a> — 125 credit gratis
-        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tantangan / Kendala Saat Ini</label>
+        <textarea id="wfKendala" rows="2" placeholder="Contoh: Konsisten posting susah, ide habis, editing lama..."></textarea>
+      </div>
+
+      <button class="btn-generate" onclick="generateWorkflow()" id="btnWF">
+        ⚡ BUAT WORKFLOW LENGKAP
+      </button>
+      <div class="loader" id="wfLoader">
+        <div class="loader-bar"></div>
+        <span>AI merancang workflow kamu...</span>
       </div>
     </div>
+
+    <div class="workflow-steps" id="wfResult"></div>
   </div>
 
-</div><!-- /wrap -->
+</div>
 
-<div id="toast"></div>
+<!-- SETUP MODAL -->
+<div class="overlay" id="setupOverlay">
+  <div class="modal">
+    <div class="modal-title">SETUP API KEY</div>
+    <div class="modal-sub">// gratis · unlimited · 30 detik setup</div>
+
+    <div class="modal-field">
+      <label>🚀 GROQ API KEY (semua fitur AI)</label>
+      <div class="key-input-wrap">
+        <input type="password" id="groqInput" placeholder="gsk_xxxxxxxxxxxxxxxxxxxxxxxx">
+        <button class="eye-btn" onclick="toggleVis('groqInput',this)">👁</button>
+      </div>
+      <div class="hint-text">
+        Daftar gratis di <a href="https://console.groq.com/keys" target="_blank">console.groq.com/keys</a><br>
+        → Create API Key → Copy (dimulai gsk_...)
+      </div>
+    </div>
+
+    <button class="modal-save" onclick="saveKey()">SIMPAN & MULAI →</button>
+    <button class="modal-skip" onclick="closeModal()">Lewati dulu</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
 
 <script>
-// ===== STATE =====
-let HF_KEY = localStorage.getItem('hf_key') || '';
 let GROQ_KEY = localStorage.getItem('groq_key') || '';
-let generatedImages = [];
-let generatedVideoUrl = null;
+let currentStyle = 'formal';
 
 // ===== INIT =====
 window.onload = () => {
-  GROQ_KEY = localStorage.getItem('groq_key') || '';
-  if (HF_KEY || GROQ_KEY) {
-    document.getElementById('setupOverlay').style.display = 'none';
-    updateStatus();
-  } else {
+  if (GROQ_KEY) {
+    closeModal();
     updateStatus();
   }
 };
 
-function updateStatus() {
-  const dot = document.getElementById('hfDot');
-  const txt = document.getElementById('statusTxt');
-  const banner = document.getElementById('apiBanner');
-  if (GROQ_KEY || HF_KEY) {
-    dot.classList.add('on'); 
-    txt.textContent = GROQ_KEY && HF_KEY ? 'Groq + HF Aktif' : GROQ_KEY ? 'Groq Aktif' : 'HF Aktif';
-    banner.style.display = 'none';
-  } else {
-    dot.classList.remove('on'); txt.textContent = 'API belum setup';
-    banner.style.display = 'flex';
-  }
+// ===== UI =====
+function showTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
 }
 
-// ===== SETUP =====
-function goStep(n) {
-  document.querySelectorAll('.setup-step').forEach(s => s.classList.remove('active'));
-  document.getElementById('step'+n).classList.add('active');
+function setStyle(style, btn) {
+  currentStyle = style;
+  document.querySelectorAll('.style-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  toast('✅ Gaya: ' + btn.textContent);
 }
+
+function toggleChip(el) {
+  el.classList.toggle('on');
+}
+
+function getChips(containerId) {
+  const chips = document.querySelectorAll('#' + containerId + ' .chip.on');
+  return [...chips].map(c => c.textContent).join(', ');
+}
+
+function getActiveChips(selector) {
+  return [...document.querySelectorAll(selector + ' .chip.on')].map(c => c.textContent).join(', ');
+}
+
+function openModal() { document.getElementById('setupOverlay').style.display = 'flex'; }
+function closeModal() { document.getElementById('setupOverlay').style.display = 'none'; }
 
 function toggleVis(id, btn) {
   const el = document.getElementById(id);
@@ -732,255 +1344,65 @@ function toggleVis(id, btn) {
   btn.textContent = el.type === 'password' ? '👁' : '🙈';
 }
 
-function saveHF() {
-  const hfVal = document.getElementById('hfInput').value.trim();
-  const groqVal = document.getElementById('groqInput').value.trim();
-  const err = document.getElementById('hfErr');
-  
-  if ((hfVal && !hfVal.startsWith('hf_')) || (groqVal && !groqVal.startsWith('gsk_'))) {
-    err.classList.add('on'); return;
+function saveKey() {
+  const val = document.getElementById('groqInput').value.trim();
+  if (val && !val.startsWith('gsk_')) { toast('❌ Groq key harus dimulai gsk_'); return; }
+  if (val) { GROQ_KEY = val; localStorage.setItem('groq_key', val); }
+  updateStatus();
+  closeModal();
+  toast('✅ API Key tersimpan!');
+}
+
+function updateStatus() {
+  const dot = document.getElementById('apiDot');
+  const txt = document.getElementById('apiTxt');
+  if (GROQ_KEY) {
+    dot.classList.add('on');
+    txt.textContent = 'Groq Aktif';
+  } else {
+    dot.classList.remove('on');
+    txt.textContent = 'Setup API';
   }
-  err.classList.remove('on');
-  if (hfVal) { HF_KEY = hfVal; localStorage.setItem('hf_key', hfVal); }
-  if (groqVal) { GROQ_KEY = groqVal; localStorage.setItem('groq_key', groqVal); }
-  
-  const msg = document.getElementById('readyMsg');
-  const active = [];
-  if (GROQ_KEY) active.push('✅ Script & Storyboard (Groq)');
-  if (HF_KEY) active.push('✅ Image & Video (HuggingFace)');
-  msg.textContent = active.length > 0 
-    ? active.join(' · ') + ' — Semua siap!'
-    : '⚠️ Belum ada API Key. Fitur AI tidak aktif.';
-  goStep(3);
 }
 
-function skipSetup() {
-  document.getElementById('setupOverlay').style.display = 'none';
-  updateStatus();
+function copyOut(id) {
+  const el = document.getElementById(id);
+  if (el.classList.contains('placeholder')) { toast('⚠️ Generate dulu!'); return; }
+  navigator.clipboard.writeText(el.textContent).then(() => toast('✅ Disalin!'));
 }
 
-function closeSetup() {
-  document.getElementById('setupOverlay').style.display = 'none';
-  updateStatus();
-}
-
-function openSetup() {
-  document.getElementById('hfInput').value = HF_KEY || '';
-  document.getElementById('groqInput').value = GROQ_KEY || '';
-  goStep(1);
-  document.getElementById('setupOverlay').style.display = 'flex';
-}
-
-// ===== TABS =====
-function switchTab(name, el) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('on'));
-  document.querySelectorAll('.tb').forEach(t => t.classList.remove('on'));
-  document.getElementById('panel-'+name).classList.add('on');
-  el.classList.add('on');
-}
-
-// ===== SELECTORS =====
-function oneChip(el) { el.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); }
-function onePlat(el) { el.closest('.plat-row').querySelectorAll('.plat').forEach(p=>p.classList.remove('on')); el.classList.add('on'); }
-function oneTone(el) { el.closest('.tone-g').querySelectorAll('.tone').forEach(t=>t.classList.remove('on')); el.classList.add('on'); }
-function oneVidOpt(el) { el.closest('.vid-opts').querySelectorAll('.v-opt').forEach(v=>v.classList.remove('on')); el.classList.add('on'); }
-
-// ===== FILE UPLOAD =====
-function triggerFile(inputId) {
-  const input = document.getElementById(inputId);
-  input.click();
-}
-function onFile(input, prevId) {
-  const f = input.files[0]; if (!f) return;
-  // Check file size
-  if (f.size > 10 * 1024 * 1024) { toast('⚠️ File terlalu besar! Max 10MB'); return; }
-  const r = new FileReader();
-  r.onload = e => { 
-    const img = document.getElementById(prevId); 
-    img.src = e.target.result; 
-    img.style.display='block';
-    toast('✅ Foto berhasil dipilih!');
-  };
-  r.onerror = () => toast('❌ Gagal baca file. Coba foto lain.');
-  r.readAsDataURL(f);
-}
-function onDragOver(e, zone) { e.preventDefault(); zone.classList.add('over'); }
-function onDragLeave(zone) { zone.classList.remove('over'); }
-function onDrop(e, prevId, zone) {
-  e.preventDefault(); zone.classList.remove('over');
-  const f = e.dataTransfer.files[0]; if (!f) return;
-  const r = new FileReader();
-  r.onload = ev => { const img = document.getElementById(prevId); img.src = ev.target.result; img.style.display='block'; };
-  r.readAsDataURL(f);
-}
-
-// ===== TOAST =====
 function toast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('on');
-  setTimeout(() => t.classList.remove('on'), 2800);
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-// ===== COPY =====
-function cp(id) {
-  const el = document.getElementById(id);
-  navigator.clipboard.writeText(el.innerText).then(() => toast('📋 Disalin ke clipboard!'));
-}
-
-// ===== PROGRESS =====
-let progInterval = null;
-function startProg(fillId, barId) {
-  document.getElementById(barId).classList.add('on');
-  const fill = document.getElementById(fillId);
-  fill.style.width = '0%';
-  let v = 0;
-  progInterval = setInterval(() => {
-    v += Math.random() * 12 + 2;
-    if (v > 90) v = 90;
-    fill.style.width = v + '%';
-  }, 400);
-}
-function endProg(fillId, barId) {
-  clearInterval(progInterval);
-  const fill = document.getElementById(fillId);
-  fill.style.width = '100%';
-  setTimeout(() => {
-    document.getElementById(barId).classList.remove('on');
-    fill.style.width = '0%';
-  }, 500);
-}
-
-// ===== GENERATE IMAGES via HuggingFace SDXL =====
-async function generateImages() {
-  document.getElementById('imgErr').classList.remove('on');
-
-  const desc = document.getElementById('imgDesc').value;
-  const cat = document.querySelector('#catChips .chip.on')?.textContent?.trim() || 'skincare';
-  const style = document.querySelector('#styleChips .chip.on')?.textContent?.trim() || 'lifestyle';
-  const size = document.getElementById('imgSize').value.split('x');
-  const w = parseInt(size[0]), h = parseInt(size[1]);
-
-  const styleMap = {
-    '📸 Lifestyle': 'lifestyle photography, natural lighting, instagram aesthetic',
-    '🔥 Viral TikTok': 'trendy tiktok style, vibrant colors, dynamic shot',
-    '🌿 Natural': 'natural daylight, soft aesthetic, earthy tones, minimal',
-    '💎 Luxury': 'luxury product photography, professional studio, premium aesthetic',
-    '😊 Casual': 'casual ugc style, authentic, everyday life, relatable',
+function getStylePrompt() {
+  const styles = {
+    formal: 'Gunakan gaya bahasa Indonesia formal-conversational: sopan, hangat, profesional tapi tidak kaku. Seperti presenter TV yang ramah.',
+    gaul: 'Gunakan gaya bahasa Indonesia santai/gaul: pakai kata "lu/gua", singkatan, slang Gen Z, energik dan relatable.',
+    premium: 'Gunakan gaya bahasa Indonesia premium brand: elegan, aspirasional, berkelas, seperti brand luxury berbicara.',
+    storytelling: 'Gunakan gaya storytelling Indonesia: naratif, emosional, membangun koneksi, seperti penulis cerita yang mengalir.'
   };
-  const stylePrompt = styleMap[style] || 'lifestyle photography';
-
-  const basePrompts = [
-    `${desc || 'beautiful woman holding product'}, ${cat} product, ${stylePrompt}, 4K, photorealistic, professional UGC content`,
-    `${desc || 'close up product shot'}, ${cat}, ${stylePrompt}, macro photography, sharp focus, high quality`,
-    `${desc || 'person using product'}, ${cat} lifestyle, ${stylePrompt}, candid authentic, natural expression`,
-    `${desc || 'product flat lay'}, ${cat}, ${stylePrompt}, aesthetic composition, studio lighting, commercial photography`,
-  ];
-
-  const btn = document.getElementById('genImgBtn');
-  btn.disabled = true;
-  document.getElementById('imgLd').classList.add('on');
-  startProg('imgFill','imgProg');
-  generatedImages = [];
-
-  const grid = document.getElementById('imgGrid');
-  grid.innerHTML = [0,1,2,3].map(i => `
-    <div class="img-cell" id="imgCell${i}">
-      <div class="img-placeholder">
-        <div class="spin" style="width:28px;height:28px;border-width:3px"></div>
-        <span style="font-size:11px;margin-top:6px">Generating ${i+1}...</span>
-      </div>
-    </div>`).join('');
-
-  // Generate 4 images in parallel (with slight delay to avoid rate limit)
-  for (let i = 0; i < 4; i++) {
-    setTimeout(() => generateSingleImage(basePrompts[i], i, w, h), i * 1500);
-  }
-
-  // Wait for all
-  await new Promise(r => setTimeout(r, 4 * 1500 + 30000));
-  endProg('imgFill','imgProg');
-  document.getElementById('imgLd').classList.remove('on');
-  btn.disabled = false;
+  return styles[currentStyle] || styles.formal;
 }
 
-async function generateSingleImage(prompt, idx, w, h) {
-  const cell = document.getElementById('imgCell'+idx);
-  try {
-    // Use Pollinations.ai - FREE, no API key needed, reliable!
-    const encodedPrompt = encodeURIComponent(prompt + ', high quality, professional photography, 4K');
-    const negPrompt = encodeURIComponent('blurry, low quality, distorted, ugly, watermark, text, nsfw');
-    
-    // Different seeds for variety
-    const seed = Math.floor(Math.random() * 999999) + idx * 1000;
-    const url = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${Math.min(w,1024)}&height=${Math.min(h,1024)}&seed=${seed}&nologo=true&enhance=true&negative=${negPrompt}`;
-    
-    // Load image via URL directly
-    await new Promise((resolve, reject) => {
-      const img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = () => {
-        generatedImages[idx] = url;
-        cell.innerHTML = `
-          <img src="${url}" alt="UGC Image ${idx+1}" style="width:100%;height:100%;object-fit:cover">
-          <button class="dl-btn" onclick="downloadImgUrl('${url}', ${idx})">⬇️ Download</button>`;
-        if (generatedImages.filter(Boolean).length === 4) {
-          toast('✅ 4 Image UGC berhasil digenerate!');
-        }
-        resolve();
-      };
-      img.onerror = () => reject(new Error('Gagal load image'));
-      img.src = url;
-      // Timeout after 60s
-      setTimeout(() => reject(new Error('Timeout - coba lagi')), 60000);
-    });
-    
-  } catch(err) {
-    cell.innerHTML = `
-      <div class="img-placeholder" style="padding:12px;text-align:center">
-        <span style="font-size:20px">❌</span>
-        <span style="font-size:10px;color:var(--muted);line-height:1.5">${err.message}</span>
-        <button onclick="generateSingleImage('${prompt.replace(/'/g,'')}',${idx},${w},${h})" 
-          style="margin-top:8px;padding:4px 12px;border-radius:8px;border:1px solid var(--red);
-          background:transparent;color:var(--red);font-size:11px;cursor:pointer">🔄 Retry</button>
-      </div>`;
-  }
-}
-
-async function downloadImgUrl(url, idx) {
-  try {
-    const res = await fetch(url);
-    const blob = await res.blob();
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `ugc-image-${idx+1}.jpg`;
-    a.click();
-    toast('⬇️ Downloading image ' + (idx+1));
-  } catch(e) {
-    // Fallback: open in new tab
-    window.open(url, '_blank');
-  }
-}
-
-function downloadImg(idx) {
-  const url = generatedImages[idx];
-  if (!url) return;
-  const a = document.createElement('a'); a.href = url;
-  a.download = `ugc-image-${idx+1}.png`; a.click();
-  toast('⬇️ Downloading image ' + (idx+1));
-}
-
-function downloadAll() {
-  const urls = generatedImages.filter(Boolean);
-  if (!urls.length) { toast('⚠️ Belum ada gambar untuk didownload'); return; }
-  urls.forEach((url, i) => {
-    setTimeout(() => { const a = document.createElement('a'); a.href = url; a.download = `ugc-image-${i+1}.png`; a.click(); }, i * 300);
-  });
-  toast(`⬇️ Downloading ${urls.length} gambar...`);
-}
-
-// ===== GENERATE SCRIPT via Claude API =====
-async function callGroqAI(systemPrompt, userPrompt) {
-  if (!GROQ_KEY) throw new Error('Groq API Key belum diset! Klik API Keys untuk setup.');
+// ===== GROQ API =====
+async function callGroq(system, user, jsonMode = true) {
+  if (!GROQ_KEY) { openModal(); throw new Error('Setup Groq API Key dulu!'); }
+  
+  const body = {
+    model: 'llama-3.3-70b-versatile',
+    messages: [
+      { role: 'system', content: system },
+      { role: 'user', content: user }
+    ],
+    max_tokens: 2048,
+    temperature: 0.8
+  };
+  
+  if (jsonMode) body.response_format = { type: 'json_object' };
   
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -988,16 +1410,7 @@ async function callGroqAI(systemPrompt, userPrompt) {
       'Authorization': `Bearer ${GROQ_KEY}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      max_tokens: 1024,
-      temperature: 0.7,
-      response_format: { type: 'json_object' }
-    })
+    body: JSON.stringify(body)
   });
   
   if (!res.ok) {
@@ -1009,199 +1422,352 @@ async function callGroqAI(systemPrompt, userPrompt) {
   return data.choices[0]?.message?.content || '';
 }
 
-async function generateScript() {
-  const prod = document.getElementById('prodName').value.trim();
-  if (!prod) { toast('⚠️ Isi nama produk dulu!'); return; }
-  if (!HF_KEY) { toast('⚠️ Setup HuggingFace API Key dulu!'); openSetup(); return; }
+// ===== GENERATE IDE =====
+async function generateIde() {
+  const niche = document.getElementById('ideNiche').value;
+  const produk = document.getElementById('ideProduk').value;
+  const audience = getActiveChips('#audienceChips');
+  const platform = getActiveChips('#platformChips');
+  const tren = document.getElementById('ideTren').value;
+  
+  if (!produk) { toast('⚠️ Isi nama produk dulu!'); return; }
 
-  const cat = document.getElementById('scriptCat').value;
-  const plat = document.querySelector('.plat.on')?.textContent?.trim() || 'TikTok';
-  const toneTxt = document.querySelector('.tone.on')?.textContent?.trim() || 'Hype';
-  const extra = document.getElementById('extraInfo').value;
+  const btn = document.getElementById('btnIde');
+  const loader = document.getElementById('ideLoader');
+  btn.disabled = true;
+  loader.classList.add('on');
+  document.getElementById('ideaGrid').innerHTML = '';
 
-  document.getElementById('scriptLd').classList.add('on');
-  document.getElementById('hookOut').textContent = '✍️ AI sedang menulis...';
-  document.getElementById('scriptOut').textContent = '...';
-  document.getElementById('ctaOut').textContent = '...';
-  document.getElementById('tagOut').textContent = '...';
+  const system = `Kamu adalah content strategist dan creative director Indonesia dengan pengalaman 10 tahun. Spesialis viral content untuk TikTok, Reels, dan YouTube Shorts. ${getStylePrompt()} Selalu balas dengan JSON valid.`;
+  
+  const user = `Buat 10 ide konten yang BENAR-BENAR VIRAL dan siap dieksekusi untuk:
+- Niche: ${niche}
+- Produk: ${produk}
+- Target Audience: ${audience}
+- Platform: ${platform}
+- Tren/Momen: ${tren || 'tidak ada'}
 
-  const sysPrompt = `Kamu adalah copywriter UGC affiliate profesional Indonesia kelas dunia. Selalu balas dengan JSON valid.`;
-  const userPrompt = `Buat konten UGC affiliate untuk:
-Produk: ${prod}
-Kategori: ${cat}
-Platform: ${plat}
-Tone: ${toneTxt}
-Info tambahan: ${extra || 'tidak ada'}
+Setiap ide harus UNIK, SPESIFIK, dan punya potensi viral tinggi. Bukan ide generik!
 
-Balas dengan JSON: {"hook":"hook 0-3 detik max 15 kata yang langsung grab attention","script":"narasi lengkap 150-200 kata natural dengan storytelling","cta":"3 variasi CTA kuat + 1 caption panjang siap pakai","hashtags":"25 hashtag relevan mix viral dan niche"}`;
+Balas dengan JSON:
+{
+  "ideas": [
+    {
+      "num": 1,
+      "format": "format konten (Hook Video/POV/Tutorial/Skit/Review dll)",
+      "title": "judul konten yang catchy dan spesifik",
+      "angle": "penjelasan angle unik dan kenapa ini bisa viral (2-3 kalimat)",
+      "hook_opening": "kalimat pembuka 0-3 detik yang langsung grab attention",
+      "why_viral": "alasan psikologis kenapa konten ini akan viral",
+      "tags": ["tag1", "tag2", "tag3"]
+    }
+  ]
+}`;
 
   try {
-    const raw = await callGroqAI(sysPrompt, userPrompt);
+    const raw = await callGroq(system, user);
     const result = JSON.parse(raw);
-
-    document.getElementById('hookOut').textContent = result.hook || 'Hook tidak tersedia';
-    document.getElementById('scriptOut').textContent = result.script || raw;
-    document.getElementById('ctaOut').textContent = result.cta || '';
-    document.getElementById('tagOut').textContent = result.hashtags || '';
-    toast('✅ Script berhasil digenerate!');
+    const ideas = result.ideas || [];
+    
+    const moodColors = ['#ff3c3c','#ff8c00','#f5c842','#00ff88','#00e5ff','#9b5de5','#ff6b9d','#4cc9f0','#ff3c3c','#00ff88'];
+    
+    document.getElementById('ideaGrid').innerHTML = ideas.map((idea, i) => `
+      <div class="idea-card" onclick="">
+        <div class="idea-num" style="color:${moodColors[i]}20">${String(idea.num).padStart(2,'0')}</div>
+        <div class="idea-format">${idea.format}</div>
+        <div class="idea-title">${idea.title}</div>
+        <div class="idea-angle">${idea.angle}</div>
+        <div style="font-size:11px;color:var(--cyan);font-family:var(--font-mono);margin-bottom:8px;padding:8px;background:rgba(0,229,255,0.05);border-radius:6px;border-left:2px solid var(--cyan)">
+          💡 "${idea.hook_opening}"
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:10px">🔥 ${idea.why_viral}</div>
+        <div class="idea-tags">
+          ${(idea.tags||[]).map(t => `<span class="idea-tag">${t}</span>`).join('')}
+        </div>
+        <button class="use-idea-btn" onclick="useIdea('${idea.title.replace(/'/g,'')}','${idea.hook_opening.replace(/'/g,'')}')">
+          → Gunakan ide ini untuk Script
+        </button>
+      </div>
+    `).join('');
+    
+    toast(`✅ ${ideas.length} ide viral berhasil digenerate!`);
   } catch(e) {
-    // Fallback: show raw text if JSON parse fails
-    document.getElementById('hookOut').textContent = '⚠️ Coba generate ulang';
-    document.getElementById('scriptOut').textContent = 'Error: ' + e.message + '\n\nPastikan HF API Key valid dan coba lagi.';
-    toast('❌ Gagal. Coba lagi dalam 30 detik.');
+    toast('❌ ' + e.message);
+    document.getElementById('ideaGrid').innerHTML = `<div style="color:var(--muted);font-family:var(--font-mono);font-size:12px;padding:20px">${e.message}</div>`;
   }
-  document.getElementById('scriptLd').classList.remove('on');
+  
+  btn.disabled = false;
+  loader.classList.remove('on');
 }
 
-// ===== GENERATE STORYBOARD via Claude API =====
-async function generateStoryboard() {
-  const title = document.getElementById('sbTitle').value.trim();
-  if (!title) { toast('⚠️ Isi judul konten dulu!'); return; }
-  if (!HF_KEY) { toast('⚠️ Setup HuggingFace API Key dulu!'); openSetup(); return; }
+function useIdea(title, hook) {
+  document.getElementById('scriptProduk').value = title;
+  showTab('script', document.querySelectorAll('.tab')[1]);
+  toast('✅ Ide dipindahkan ke Script Pro!');
+}
 
-  const dur = document.getElementById('sbDur').value;
-  const plat = document.getElementById('sbPlat').value;
-  const type = document.getElementById('sbType').value;
+// ===== GENERATE SCRIPT =====
+async function generateScript() {
+  const produk = document.getElementById('scriptProduk').value.trim();
+  if (!produk) { toast('⚠️ Isi nama produk dulu!'); return; }
 
-  document.getElementById('sbLd').classList.add('on');
-  document.getElementById('sbErr').classList.remove('on');
+  const angle = getActiveChips('[data-group="angle"]') || 'Problem-Solution';
+  const durasi = document.getElementById('scriptDurasi').value;
+  const plat = document.getElementById('scriptPlat').value;
+  const usp = document.getElementById('scriptUSP').value;
+  const pain = document.getElementById('scriptPain').value;
 
-  const sysPrompt = `Kamu adalah sutradara konten UGC profesional Indonesia. Selalu balas dengan JSON array valid.`;
-  const userPrompt = `Buat storyboard 5 scene untuk:
-Konten: ${title}
-Durasi: ${dur}, Platform: ${plat}, Tipe: ${type}
+  const btn = document.getElementById('btnScript');
+  const loader = document.getElementById('scriptLoader');
+  btn.disabled = true;
+  loader.classList.add('on');
 
-Balas dengan JSON array: [{"num":1,"title":"nama scene pendek","desc":"deskripsi visual detail aksi yang terjadi","emoji":"1 emoji","camera":"camera angle + movement","timing":"0-3s","vibe":"Energetic/Intimate/Satisfying/Dramatic/Calm"}]`;
+  // Reset outputs
+  ['outHook','outScript','outCTA','outTag','outCaption'].forEach(id => {
+    const el = document.getElementById(id);
+    el.textContent = 'AI sedang menulis...';
+    el.classList.add('placeholder');
+  });
+
+  const system = `Kamu adalah copywriter dan scriptwriter konten Indonesia kelas dunia dengan pengalaman 10 tahun. Spesialis UGC affiliate dan viral content. ${getStylePrompt()} Setiap kata harus punya tujuan. Tulis script yang BENAR-BENAR CONVERT, bukan template generik. Balas dengan JSON valid.`;
+
+  const user = `Tulis script konten untuk:
+- Produk: ${produk}
+- Angle: ${angle}
+- Durasi: ${durasi}
+- Platform: ${plat}
+- USP/Keunggulan: ${usp || 'tidak disebutkan'}
+- Pain Point Target: ${pain || 'tidak disebutkan'}
+
+Buat script yang AUTHENTIC, SPECIFIC, dan CONVERT. Bukan klise!
+
+Balas dengan JSON:
+{
+  "hook": "hook 0-3 detik yang langsung arrest attention, spesifik dan mengejutkan",
+  "script": "script narasi LENGKAP dengan format:\\n[SCENE 1 - 0-3s]\\nVisual: ...\\nNarasi: ...\\n\\n[SCENE 2 - 3-10s]\\nVisual: ...\\nNarasi: ...\\n\\n(dst sesuai durasi)",
+  "cta": "3 variasi CTA yang kuat:\\n1. ...\\n2. ...\\n3. ...",
+  "hashtags": "25 hashtag relevan mix viral + niche (pisah spasi)",
+  "caption": "caption lengkap siap posting dengan emoji, hook, body, CTA, hashtag (300-500 karakter)"
+}`;
 
   try {
-    const raw = await callGroqAI(sysPrompt, userPrompt);
-    const parsed = JSON.parse(raw);
-    const scenes = Array.isArray(parsed) ? parsed : parsed.scenes || parsed.storyboard || Object.values(parsed)[0];
+    const raw = await callGroq(system, user);
+    const result = JSON.parse(raw);
 
-    const moodColors = { Energetic:'#ff3d5a', Intimate:'#9b5de5', Satisfying:'#00d4aa', Dramatic:'#ffd166', Calm:'#4cc9f0' };
+    const fields = [
+      ['outHook', result.hook],
+      ['outScript', result.script],
+      ['outCTA', result.cta],
+      ['outTag', result.hashtags],
+      ['outCaption', result.caption]
+    ];
+
+    fields.forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      el.textContent = val || '-';
+      el.classList.remove('placeholder');
+    });
+
+    toast('✅ Script lengkap berhasil ditulis!');
+  } catch(e) {
+    document.getElementById('outScript').textContent = '❌ ' + e.message;
+    toast('❌ ' + e.message);
+  }
+
+  btn.disabled = false;
+  loader.classList.remove('on');
+}
+
+// ===== GENERATE STORYBOARD =====
+async function generateStoryboard() {
+  const judul = document.getElementById('sbJudul').value.trim();
+  if (!judul) { toast('⚠️ Isi judul konten dulu!'); return; }
+
+  const durasi = document.getElementById('sbDurasi').value;
+  const mood = document.getElementById('sbMood').value;
+  const lokasi = document.getElementById('sbLokasi').value;
+  const extra = document.getElementById('sbExtra').value;
+
+  const btn = document.getElementById('btnSB');
+  const loader = document.getElementById('sbLoader');
+  btn.disabled = true;
+  loader.classList.add('on');
+  document.getElementById('sbGrid').innerHTML = '';
+
+  const system = `Kamu adalah sutradara konten dan cinematographer Indonesia dengan pengalaman 10 tahun di TikTok dan social media content. ${getStylePrompt()} Tulis shot list yang SANGAT DETAIL dan ACTIONABLE — kreator pemula pun harus bisa langsung eksekusi. Balas dengan JSON valid.`;
+
+  const user = `Buat storyboard sinematik untuk:
+- Konten: ${judul}
+- Durasi: ${durasi}
+- Mood/Tone Visual: ${mood}
+- Lokasi: ${lokasi || 'fleksibel'}
+- Catatan tambahan: ${extra || 'tidak ada'}
+
+Balas dengan JSON:
+{
+  "scenes": [
+    {
+      "num": 1,
+      "title": "nama scene singkat",
+      "timing": "0-3s",
+      "emoji": "1 emoji representasi scene",
+      "visual": "deskripsi detail APA yang terlihat di frame — subjek, komposisi, background, props",
+      "camera": "camera angle + movement (Extreme Close Up, Medium Shot, Wide Shot, dll + Pan/Tilt/Static/Dolly)",
+      "narasi": "apa yang diucapkan/teks on screen",
+      "teknik": "teknik khusus jika ada (slow motion, jump cut, POV, dll)",
+      "mood": "Energetic/Intimate/Satisfying/Dramatic/Calm/Exciting"
+    }
+  ]
+}`;
+
+  try {
+    const raw = await callGroq(system, user);
+    const result = JSON.parse(raw);
+    const scenes = result.scenes || [];
+
+    const moodColors = {
+      Energetic:'#ff3c3c', Intimate:'#9b5de5', Satisfying:'#00ff88',
+      Dramatic:'#f5c842', Calm:'#4cc9f0', Exciting:'#ff8c00'
+    };
 
     document.getElementById('sbGrid').innerHTML = scenes.map(s => {
-      const color = moodColors[s.vibe] || 'var(--cyan)';
+      const color = moodColors[s.mood] || 'var(--accent)';
       return `
-        <div class="sc-card">
-          <div class="sc-vis" style="font-size:40px">${s.emoji || '🎬'}<span class="sc-num">${s.num}</span></div>
-          <div class="sc-body">
-            <div class="sc-title">${s.title}</div>
-            <div class="sc-desc">${s.desc}</div>
-            <div class="sc-cam">📷 ${s.camera}</div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px">
-              <span class="sc-tag">⏱ ${s.timing}</span>
-              <span style="display:inline-block;padding:2px 8px;border-radius:100px;font-size:10px;
-                background:rgba(0,0,0,.2);border:1px solid ${color}30;color:${color}">${s.vibe}</span>
+        <div class="sb-card">
+          <div class="sb-visual">
+            ${s.emoji || '🎬'}
+            <div class="sb-num-badge">${s.num}</div>
+            <div class="sb-timing">${s.timing}</div>
+          </div>
+          <div class="sb-body">
+            <div class="sb-scene-title">${s.title}</div>
+            <div class="sb-desc">${s.visual}</div>
+            <div class="sb-meta">
+              <div class="sb-meta-item">📷 <span>${s.camera}</span></div>
+              ${s.narasi ? `<div class="sb-meta-item">🎤 <span>${s.narasi}</span></div>` : ''}
+              ${s.teknik ? `<div class="sb-meta-item">✨ <span>${s.teknik}</span></div>` : ''}
+              <div class="sb-meta-item" style="margin-top:6px">
+                <span style="display:inline-block;padding:2px 8px;border-radius:100px;font-size:9px;
+                  background:${color}15;border:1px solid ${color}40;color:${color}">${s.mood}</span>
+              </div>
             </div>
           </div>
         </div>`;
     }).join('');
-    toast('✅ Storyboard ' + scenes.length + ' scene berhasil!');
+
+    toast(`✅ Storyboard ${scenes.length} scene berhasil!`);
   } catch(e) {
-    const err = document.getElementById('sbErr');
-    err.textContent = '❌ ' + e.message + ' — Coba lagi dalam 30 detik'; 
-    err.classList.add('on');
-    toast('❌ Gagal. Coba lagi!');
+    toast('❌ ' + e.message);
+    document.getElementById('sbGrid').innerHTML = `<div style="color:var(--muted);font-size:12px;padding:20px">${e.message}</div>`;
   }
-  document.getElementById('sbLd').classList.remove('on');
+
+  btn.disabled = false;
+  loader.classList.remove('on');
 }
 
-// ===== GENERATE VIDEO via HuggingFace =====
-async function generateVideo() {
-  if (!HF_KEY) {
-    document.getElementById('vidErr').textContent = '⚠️ HuggingFace API Key belum diset. Klik "API Keys" di pojok kanan atas.';
-    document.getElementById('vidErr').classList.add('on');
-    return;
-  }
+// ===== GENERATE WORKFLOW =====
+async function generateWorkflow() {
+  const tipe = document.getElementById('wfTipe').value;
+  const freq = document.getElementById('wfFreq').value;
+  const goal = getActiveChips('#panel-workflow .chips:nth-of-type(1)') || 'Viral & Reach';
+  const platform = getActiveChips('#panel-workflow .chips:nth-of-type(2)') || 'TikTok';
+  const kendala = document.getElementById('wfKendala').value;
 
-  const prompt = document.getElementById('vidPrompt').value.trim();
-  if (!prompt) { toast('⚠️ Isi prompt video dulu!'); return; }
-
-  const negPrompt = document.getElementById('negPrompt').value;
-  const model = document.querySelector('.v-opt.on')?.dataset?.model || 'damo-vilab/text-to-video-ms-1.7b';
-
-  document.getElementById('vidErr').classList.remove('on');
-  const btn = document.getElementById('genVidBtn');
+  const btn = document.getElementById('btnWF');
+  const loader = document.getElementById('wfLoader');
   btn.disabled = true;
-  document.getElementById('vidLd').classList.add('on');
-  startProg('vidFill','vidProg');
-  document.getElementById('vidPrev').innerHTML = '<div style="font-size:40px">⏳</div><div>AI sedang render video...</div><div style="font-size:11px;color:var(--muted)">Bisa memakan 30-120 detik</div>';
+  loader.classList.add('on');
+  document.getElementById('wfResult').innerHTML = '';
 
-  // Animate timer
-  let elapsed = 0;
-  const timer = setInterval(() => {
-    elapsed++;
-    document.getElementById('vidLdTxt').textContent = `Rendering... ${elapsed}s (estimasi 30-90 detik)`;
-  }, 1000);
+  const system = `Kamu adalah content strategist dan productivity coach Indonesia dengan pengalaman 10 tahun membangun sistem konten untuk kreator dan brand. ${getStylePrompt()} Buat workflow yang REALISTIS, ACTIONABLE, dan bisa langsung dieksekusi hari ini. Balas dengan JSON valid.`;
+
+  const user = `Buat content workflow lengkap untuk:
+- Tipe Kreator: ${tipe}
+- Frekuensi: ${freq}
+- Goal: ${goal}
+- Platform: ${platform}
+- Kendala: ${kendala || 'tidak disebutkan'}
+
+Balas dengan JSON:
+{
+  "phases": [
+    {
+      "num": 1,
+      "title": "nama fase (SENIN: IDEASI, SELASA: PRODUKSI, dll)",
+      "color": "warna hex untuk fase ini",
+      "steps": [
+        {
+          "action": "aksi spesifik yang harus dilakukan",
+          "time": "estimasi waktu (15 menit, 1 jam, dll)",
+          "tip": "tips pro untuk step ini"
+        }
+      ]
+    }
+  ],
+  "tips_pro": ["tip 1", "tip 2", "tip 3"],
+  "weekly_schedule": "ringkasan jadwal mingguan dalam 2-3 kalimat"
+}`;
 
   try {
-    const res = await fetch(`https://api-inference.huggingface.co/models/${model}`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${HF_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        inputs: prompt,
-        parameters: { negative_prompt: negPrompt }
-      })
-    });
+    const raw = await callGroq(system, user);
+    const result = JSON.parse(raw);
+    const phases = result.phases || [];
 
-    clearInterval(timer);
+    let html = '';
 
-    if (!res.ok) {
-      const errTxt = await res.text();
-      // Model might be loading
-      if (res.status === 503) {
-        document.getElementById('vidPrev').innerHTML = `
-          <div style="text-align:center;padding:20px">
-            <div style="font-size:36px;margin-bottom:12px">⏳</div>
-            <div style="font-weight:600;margin-bottom:6px">Model sedang loading</div>
-            <div style="font-size:12px;color:var(--muted);line-height:1.7">Model HuggingFace kadang butuh 1-2 menit untuk warm up. Coba lagi dalam 60 detik.</div>
-          </div>`;
-        toast('⚠️ Model loading... coba lagi dalam 60 detik');
-      } else {
-        throw new Error(`HTTP ${res.status}: ${errTxt.slice(0,100)}`);
-      }
-    } else {
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      generatedVideoUrl = url;
-
-      // Check if it's video or image
-      if (blob.type.startsWith('video/')) {
-        document.getElementById('vidPrev').innerHTML = `<video src="${url}" controls autoplay loop style="width:100%;height:100%;border-radius:14px;object-fit:cover"></video>`;
-      } else if (blob.type.startsWith('image/')) {
-        document.getElementById('vidPrev').innerHTML = `
-          <img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:14px">
-          <div style="position:absolute;bottom:12px;font-size:11px;background:rgba(0,0,0,.6);padding:4px 12px;border-radius:100px;color:var(--gold)">⚠️ Model menghasilkan gambar, bukan video</div>`;
-      }
-
-      document.getElementById('vidDlBtn').disabled = false;
-      toast('✅ Video berhasil digenerate!');
+    if (result.weekly_schedule) {
+      html += `
+        <div class="card" style="margin-bottom:20px;border-color:rgba(255,60,60,0.3)">
+          <div class="card-title" style="font-size:14px">📅 RINGKASAN JADWAL</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.6;margin-top:8px">${result.weekly_schedule}</div>
+        </div>`;
     }
+
+    html += phases.map(phase => `
+      <div class="workflow-phase">
+        <div class="phase-header">
+          <div class="phase-num" style="background:${phase.color || 'var(--accent)'}">${phase.num}</div>
+          <div class="phase-title">${phase.title}</div>
+        </div>
+        <div class="phase-steps">
+          ${(phase.steps || []).map((step, i) => `
+            <div class="step-item">
+              <div class="step-check" onclick="this.classList.toggle('done');this.textContent=this.classList.contains('done')?'✓':''"></div>
+              <div class="step-text">
+                <div style="font-weight:500;margin-bottom:3px">${step.action}</div>
+                ${step.tip ? `<div style="font-size:11px;color:var(--muted);font-family:var(--font-mono)">💡 ${step.tip}</div>` : ''}
+              </div>
+              <div class="step-time">${step.time}</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('');
+
+    if (result.tips_pro && result.tips_pro.length) {
+      html += `
+        <div class="card" style="margin-top:20px;border-color:rgba(245,200,66,0.3)">
+          <div class="card-title" style="font-size:14px">🏆 TIPS PRO</div>
+          <div style="margin-top:12px;display:flex;flex-direction:column;gap:8px">
+            ${result.tips_pro.map((tip, i) => `
+              <div style="display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.5">
+                <span style="color:var(--gold);font-family:var(--font-mono);font-size:11px;flex-shrink:0;margin-top:2px">${String(i+1).padStart(2,'0')}</span>
+                <span>${tip}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>`;
+    }
+
+    document.getElementById('wfResult').innerHTML = html;
+    toast('✅ Workflow berhasil dirancang!');
   } catch(e) {
-    clearInterval(timer);
-    const err = document.getElementById('vidErr');
-    err.textContent = '❌ Gagal: ' + e.message + ' — Pastikan API Key valid dan coba model lain.';
-    err.classList.add('on');
-    document.getElementById('vidPrev').innerHTML = '<div style="font-size:40px">❌</div><div style="font-size:13px">Gagal render</div>';
-    toast('❌ Gagal generate video.');
+    toast('❌ ' + e.message);
+    document.getElementById('wfResult').innerHTML = `<div style="color:var(--muted);font-size:12px;padding:20px">${e.message}</div>`;
   }
 
-  endProg('vidFill','vidProg');
-  document.getElementById('vidLd').classList.remove('on');
   btn.disabled = false;
-}
-
-function downloadVideo() {
-  if (!generatedVideoUrl) return;
-  const a = document.createElement('a');
-  a.href = generatedVideoUrl;
-  a.download = 'ugc-video.mp4';
-  a.click();
-  toast('⬇️ Downloading video...');
+  loader.classList.remove('on');
 }
 </script>
 </body>
