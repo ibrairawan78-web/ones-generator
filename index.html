@@ -1472,7 +1472,7 @@ Balas dengan JSON:
     const moodColors = ['#ff3c3c','#ff8c00','#f5c842','#00ff88','#00e5ff','#9b5de5','#ff6b9d','#4cc9f0','#ff3c3c','#00ff88'];
     
     document.getElementById('ideaGrid').innerHTML = ideas.map((idea, i) => `
-      <div class="idea-card" onclick="">
+      <div class="idea-card">
         <div class="idea-num" style="color:${moodColors[i]}20">${String(idea.num).padStart(2,'0')}</div>
         <div class="idea-format">${idea.format}</div>
         <div class="idea-title">${idea.title}</div>
@@ -1501,8 +1501,18 @@ Balas dengan JSON:
 }
 
 function useIdea(title, hook) {
+  // Switch to script tab
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-script').classList.add('active');
+  document.querySelectorAll('.tab')[1].classList.add('active');
+  
+  // Fill in the fields
   document.getElementById('scriptProduk').value = title;
-  showTab('script', document.querySelectorAll('.tab')[1]);
+  
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
   toast('✅ Ide dipindahkan ke Script Pro!');
 }
 
