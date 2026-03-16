@@ -566,12 +566,12 @@ select option { background: var(--surface2); }
 }
 
 .use-idea-btn {
-  display: none;
+  display: block;
   width: 100%;
   margin-top: 12px;
   padding: 8px;
-  background: rgba(255,60,60,0.1);
-  border: 1px solid rgba(255,60,60,0.3);
+  background: rgba(255,60,60,0.08);
+  border: 1px solid rgba(255,60,60,0.25);
   border-radius: 8px;
   color: var(--accent);
   font-size: 11px;
@@ -580,8 +580,7 @@ select option { background: var(--surface2); }
   transition: all .2s;
 }
 
-.idea-card:hover .use-idea-btn { display: block; }
-.use-idea-btn:hover { background: rgba(255,60,60,0.2); }
+.use-idea-btn:hover, .use-idea-btn:active { background: rgba(255,60,60,0.2); border-color: var(--accent); }
 
 /* ===== WORKFLOW STEPS ===== */
 .workflow-steps {
@@ -1395,14 +1394,12 @@ async function callGroq(system, user, jsonMode = true) {
   const body = {
     model: 'llama-3.3-70b-versatile',
     messages: [
-      { role: 'system', content: system },
+      { role: 'system', content: system + (jsonMode ? ' IMPORTANT: Respond with valid JSON only, no markdown, no backticks.' : '') },
       { role: 'user', content: user }
     ],
     max_tokens: 2048,
-    temperature: 0.8
+    temperature: 0.7
   };
-  
-  if (jsonMode) body.response_format = { type: 'json_object' };
   
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
@@ -1414,12 +1411,20 @@ async function callGroq(system, user, jsonMode = true) {
   });
   
   if (!res.ok) {
-    const err = await res.json();
-    throw new Error(err.error?.message || 'Groq API error');
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error?.message || 'Groq API error ' + res.status);
   }
   
   const data = await res.json();
-  return data.choices[0]?.message?.content || '';
+  const text = data.choices[0]?.message?.content || '';
+  
+  if (jsonMode) {
+    // Clean and extract JSON
+    const cleaned = text.replace(/```json|```/g, '').trim();
+    const match = cleaned.match(/\{[\s\S]*\}|\[[\s\S]*\]/);
+    return match ? match[0] : cleaned;
+  }
+  return text;
 }
 
 // ===== GENERATE IDE =====
